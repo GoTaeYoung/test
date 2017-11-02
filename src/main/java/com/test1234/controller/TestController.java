@@ -13,40 +13,21 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.test1234.dao.TestDao;
+import com.test1234.service.TestService;
 import com.test1234.vo.UserVO;
 
 @Controller
 public class TestController {
 	@Autowired
 	TestDao testDao;
-
+	@Autowired TestService testService;
 	@RequestMapping("/test")
 	public String test() {
 		return "/test";
 	}
-
 	@RequestMapping("/test1")
-	public ModelAndView test1(HttpServletRequest req) {
-		ModelAndView model = new ModelAndView("/test1");
-		UserVO vo = new UserVO();
-		vo.setId(req.getParameter("id"));
-		vo.setPw(req.getParameter("pw"));
-		vo.setName(req.getParameter("name"));
-		vo.setNname(req.getParameter("nname"));
-		vo.setRadio1(req.getParameter("radio1"));
-		vo.setCb(Arrays.toString(req.getParameterValues("cb")));
-		vo.setRadio2(req.getParameter("radio2"));
-		vo.setSns(req.getParameter("sns"));
-		System.out.println(vo.toString());
-		if (testDao.checkId(req.getParameter("id")) == 0) {
-			testDao.insertTest(vo);
-			System.out.println("회원가입 완료");
-		} else if (testDao.checkId(req.getParameter("id")) == 1) {
-			testDao.updateTest(vo);
-			System.out.println("정보수정 완료");
-		}
-		model.addObject("vo", vo);
-		return model;
+	public ModelAndView test1(HttpServletRequest req, UserVO userVo ) {
+		return testService.test1(req, userVo, "/test1");
 	}
 
 	// ------------------------------------------------------
@@ -58,11 +39,7 @@ public class TestController {
 	@RequestMapping(value = "/checkId", produces = "application/text;charset=utf8")
 	@ResponseBody
 	public String checkId(HttpServletRequest req) {
-		String id = req.getParameter("id");
-		int cntId = testDao.checkId(id);
-		if (cntId == 0)
-			return "사용 가능";
-		return "사용 불가능";
+		return testDao.checkId(req.getParameter("id")) > 0 ? "가능" : "불가능";
 	}
 
 	@RequestMapping("/test2")

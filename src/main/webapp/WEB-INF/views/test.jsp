@@ -17,7 +17,7 @@ input[type=text].snsAddr {
 </style>
 </head>
 <body>
-	<form action="test1" method="post">
+	<form action="test1" method="post" id="formId">
 
 		ID:<input type="text" name="id" id="id" data-text="아이디"> 
 		<input type="button" onclick="click1()" value="중복확인"> <br> <br>
@@ -55,103 +55,125 @@ input[type=text].snsAddr {
 		<input type="button" id="addSns" value="추가"> <br> <br> 
 		<input type="hidden" id="goSns" name="sns">
 		
+		
 		<input type="submit" onclick="return click2()" value="회원가입">
 	</form>
 </body>
 <script>
-	var flag = false;
+var flag = false;
 
-	$('#addSns').click(function() {
-		$('#sns').append("<div class='snsDiv'><input type='text' class='snsName'> : <input type='text' class='snsAddr'> <input type='button' class='removeSns' value='삭제'></div>");
-	})
-	$(document).on("click", ".removeSns", function() {
-			$(this).parent().remove();
-	})
-	//----------------------------------------------------------------	
-	$('#pw').keyup(function() {
-		if ($('#pw').val() != $('#pwCheck').val()) {
-			$('#res1').text('');
-			$('#res1').html("<b>암호가 틀립니다</b>").css("color", "red");
-		} else {
-			$('#res1').text('');
-			$('#res1').html("<b>암호가 맞습니다</b>").css("color", "green");
-		}
-	})
-	//----------------------------------------------------------------
-	$('#pwCheck').keyup(function() {
-		if ($('#pw').val() != $('#pwCheck').val()) {
-			$('#res1').text('');
-			$('#res1').html("<b>암호가 틀립니다</b>").css("color", "red");
-		} else {
-			$('#res1').text('');
-			$('#res1').html("<b>암호가 맞습니다</b>").css("color", "green");
-		}
-	})
-	//--------------------------------------------------
-	$('.cb').click(function() {
-		var cnt = $(".cb:checked").length;
-		if (cnt == 0) {
-			$('#res2').text('');
-			$('#res2').html("<b>1개 이상 선택하세요</b>").css("color", "red");
-		} else {
-			$('#res2').text('');
-			$('#res2').html("<b>" + cnt + "개 선택함</b>").css("color", "green");
-		}
-	})
-	//---------------------------------
-	function click1() {
-		var id = $("#id").val();
-		$.ajax({
-			url : '/checkId?id=' + id,
-			type : 'get',
-			success : function(data) {
-				//var ajaxName = decodeURIComponent(data);
-				alert(data);
-				if (data == "사용 가능") {
-					flag = true;
-				}
-			}
-		})
+$('#addSns').click(function() {
+	appendElement(this);
+});
+$(document).on("click", ".removeSns", function() {
+		$(this).parent().remove();
+});
+//----------------------------------------------------------------	
+$('#pw').keyup(function() {
+	pwCheck($('#pw').val(),$('#pwCheck').val() );
+})
+//----------------------------------------------------------------
+$('#pwCheck').keyup(function() {
+	pwCheck($('#pw').val(),$('#pwCheck').val() );
+})
+//--------------------------------------------------
+$('.cb').click(function() {
+	checkCheckBox();
+});
+function checkCheckBox(){
+	var element = $('#res2');
+	var msg = "";
+	var color;
+	var cnt = $(".cb:checked").length;
+	if (cnt == 0) {
+		msg = "<b>1개 이상 선택하세요</b>";
+		color = "red";
+	} else {
+		msg = "<b>" + cnt + "개 선택함</b>";
+		color = "green";
 	}
-	//--------------------------------------------
-	function click2() {
-		var array = [ "#id", "#nname", "#pw", "#pwCheck", "#name", ".radio1",
-				".cb", ".radio2" ];
-
-		for (var i = 0; i < array.length; i++) {
-			if ($(array[i]).val() == "" && i < 5) {
-				alert($(array[i]).data("text") + " 입력하세요");
-				$(array[i]).focus();
-				return false;
-				break;
-			} else if ($(array[i] + ":checked").length < 1 && 4 < i) {
-				alert($(array[i]).first().data("text") + " 체크");
-				$(array[i]).first().focus();
-				return false;
-				break;
+	appendMsg(element, msg, color);
+}
+//---------------------------------
+function click1() {
+	var id = $("#id").val();
+	$.ajax({
+		url : '/checkId?id=' + id,
+		type : 'get',
+		success : function(data) {
+			//var ajaxName = decodeURIComponent(data);
+			alert(data);
+			if (data == "사용 가능") {
+				flag = true;
 			}
 		}
-		//------------------------------------------
-		if (flag == false) {
-			alert("아이디 중복확인 해주세요");
-			return false;
-		}
-		//-------------------------------------------
-		if ($('#pw').val() != $('#pwCheck').val()) {
-			alert("비밀번호가 다릅니다");
-			return false;
-		}
-		//----------------------------------------
-		var ob = new Object();
-		$(".snsName").each(function(i) {
-			if ($(this).val() != "" && $(".snsAddr").eq(i).val() != "") {
-				ob[$(this).val()] = $(".snsAddr").eq(i).val();
-			}
-		})
+	})
+}
+//--------------------------------------------
+function click2() {
+	var array = [ "#id", "#nname", "#pw", "#pwCheck", "#name", ".radio1",
+			".cb", ".radio2" ];
 
-		var obStr = JSON.stringify(ob);
-		$("#goSns").val(obStr);
-		console.log($("#goSns").val());
+	for (var i = 0; i < array.length; i++) {
+		if ($(array[i]).val() == "" && i < 5) {
+			alert($(array[i]).data("text") + " 입력하세요");
+			$(array[i]).focus();
+			return false;
+			break;
+		} else if ($(array[i] + ":checked").length < 1 && 4 < i) {
+			alert($(array[i]).first().data("text") + " 체크");
+			$(array[i]).first().focus();
+			return false;
+			break;
+		}
 	}
+	//------------------------------------------
+	if (flag == false) {
+		alert("아이디 중복확인 해주세요");
+		return false;
+	}
+	//-------------------------------------------
+	if ($('#pw').val() != $('#pwCheck').val()) {
+		alert("비밀번호가 다릅니다");
+		return false;
+	}
+	//----------------------------------------
+	
+}
+function createJsonStrForSns(){
+	var jsonOb = new Object();
+	var jsonKey="";
+	var jsonValue="";
+	$(".snsName").each(function(i) {
+		jsonKeyValue = $(this).val();
+		jsonValue =  $(".snsAddr").eq(i).val();
+		if (jsonKey != "" &&  jsonValue!= "") {
+			jsonOb[jsonKey] = jsonValue;
+		}
+	});
+	var jsonStr = JSON.stringify(jsonOb);
+	$("#goSns").val(jsonStr);
+	console.log($("#goSns").val());
+}
+function appendElement(element){
+	var appnedStr=""+
+		"<div class='snsDiv'>"+
+		"	<input type='text' class='snsName'> : <input type='text' class='snsAddr'> <input type='button' class='removeSns' value='삭제'>"+
+		"</div>";
+	element.append(appendStr);
+}
+function appendMsg(element, msg, color){
+	element.text("");
+	element.css("color",color);
+	element.append(msg);
+}
+function pwCheck(pw,repw){
+	if (pw  != repw) {
+		appendMsg($('#res1'),"<b>암호가 틀립니다</b>", "red");
+	} else {
+		appendMsg($('#res1'),"<b>암호가 맞습니다</b>", "green");
+	}
+}
 </script>
 </html>
+
